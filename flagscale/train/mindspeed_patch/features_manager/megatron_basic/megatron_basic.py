@@ -1,5 +1,5 @@
 from mindspeed_patch.features_manager.feature import MindSpeedFeature
-
+import torch
 
 class MegatronBasicFeature(MindSpeedFeature):
     def __init__(self):
@@ -102,10 +102,10 @@ class MegatronBasicFeature(MindSpeedFeature):
         )
 
         # Currently, it is not supported to Cast shard fp32 main params to fp8 model params
-        from mindspeed_patch.core.fp8_utils import quantize_param_shard
+        from mindspeed_patch.core.fp8_utils import quantize_param_shard, is_float8tensor
 
         pm.register_patch('megatron.core.fp8_utils.quantize_param_shard', quantize_param_shard)
-
+        pm.register_patch('megatron.core.fp8_utils.is_float8tensor', is_float8tensor)
         # fix count_zeros in ChainedOptimizer for core_r0.12.1.
         from mindspeed_patch.core.megatron_basic.count_zero_fix import step
 

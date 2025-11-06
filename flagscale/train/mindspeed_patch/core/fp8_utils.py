@@ -1,7 +1,7 @@
 # Copyright (c) 2025, Huawei Technologies Co., Ltd. All rights reserved.
 # Copyright (c) 2022-2024, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 import warnings
-
+import torch
 
 def quantize_param_shard(
     model_params, main_params, start_offsets, data_parallel_group, fsdp_shard_model_params=None
@@ -11,3 +11,14 @@ def quantize_param_shard(
     warnings.warn(
         "Currently, it is not supported to Cast shard fp32 main params to fp8 model params"
     )
+
+def is_float8tensor(tensor: torch.Tensor) -> bool:
+    """Check if a tensor is a Transformer Engine Float8Tensor.
+
+    Note that in TE2.x, in order to support more recipes, the design of the fp8 tensor class has
+    changed. Now Float8Tensor is only used for current scaling and delayed scaling. And mxfp8
+    and blockwise scaling have their own fp8 tensor classes. These different fp8 tensor classes
+    are both inherited from QuantizedTensor. So, for TE1.x, FP8_TENSOR_CLASS is Float8Tensor,
+    and for TE2.x, FP8_TENSOR_CLASS is QuantizedTensor.
+    """
+    return False

@@ -22,7 +22,7 @@ from torch._C._distributed_c10d import ProcessGroup
 from megatron.core import mpu
 from megatron.core.parallel_state import (
     RankGenerator,
-    create_hierarchical_parallel_groups,
+    #create_hierarchical_parallel_groups,
     default_embedding_ranks,
     default_position_embedding_ranks,
 )

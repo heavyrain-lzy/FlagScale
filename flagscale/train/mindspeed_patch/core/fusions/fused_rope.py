@@ -8,8 +8,8 @@ from typing import Optional
 import torch
 
 from mindspeed_patch.args_utils import get_full_args
-from mindspeed_patch.core.transformer.multi_head_latent_attention.mla_utils import yarn_get_mscale
-from mindspeed_patch.ops.npu_rotary_position_embedding import npu_rotary_position_embedding
+#from mindspeed_patch.core.transformer.multi_head_latent_attention.mla_utils import yarn_get_mscale
+#from mindspeed_patch.ops.npu_rotary_position_embedding import npu_rotary_position_embedding
 from torch import Tensor
 
 from megatron.core.models.common.embeddings.rotary_pos_embedding import _rotate_half
@@ -83,10 +83,10 @@ def transformer_config_post_init_wrapper(fn):
         self.apply_rope_fusion = False
         fn(self)
         self.apply_rope_fusion = ori_apply_rope_fusion
-        if (
-            getattr(self, "multi_head_latent_attention") or getattr(self, "multi_latent_attention")
-        ) and self.rope_type == "yarn":
-            self.apply_rope_fusion = False
+        #if (
+        #    getattr(self, "multi_head_latent_attention") or getattr(self, "multi_latent_attention")
+        #) and self.rope_type == "yarn":
+        #    self.apply_rope_fusion = False
         del ori_apply_rope_fusion
 
     return wrapper
@@ -98,6 +98,7 @@ def apply_rotary_pos_emb(
     config: TransformerConfig,
     cu_seqlens: Optional[Tensor] = None,
     mscale: float = 1.0,
+    cp_group: torch.distributed.ProcessGroup = None,
 ):
     """
     Old version for fix rotary_pos_emb in core_r0.10.0.

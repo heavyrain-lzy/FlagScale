@@ -72,9 +72,9 @@ class RequirementsBasicFeature(MindSpeedFeature):
         pm.register_patch(
             'flash_attn.flash_attn_interface.flash_attn_unpadded_func', create_dummy=True
         )
-
+        pm.register_patch('transformer_engine.pytorch.ops.Sequential', torch.nn.Module, create_dummy=True)
     def apex_adaptation(self, pm, args):
-        # from mindspeed_patch.ops.npu_matmul_add import npu_matmul_add_fp32, npu_matmul_add_fp16
+        from mindspeed_patch.ops.npu_matmul_add import npu_matmul_add_fp32, npu_matmul_add_fp16
         from mindspeed_patch.core.fusions.fused_layer_norm import (
             FastLayerNormFN,
             FusedLayerNormAffineFunction,
@@ -97,8 +97,8 @@ class RequirementsBasicFeature(MindSpeedFeature):
             create_dummy=True,
         )
         pm.register_patch('fused_layer_norm_cuda', create_dummy=True)
-        # pm.register_patch('fused_weight_gradient_mlp_cuda.wgrad_gemm_accum_fp32', npu_matmul_add_fp32, create_dummy=True)
-        # pm.register_patch('fused_weight_gradient_mlp_cuda.wgrad_gemm_accum_fp16', npu_matmul_add_fp16, create_dummy=True)
+        pm.register_patch('fused_weight_gradient_mlp_cuda.wgrad_gemm_accum_fp32', npu_matmul_add_fp32, create_dummy=True)
+        pm.register_patch('fused_weight_gradient_mlp_cuda.wgrad_gemm_accum_fp16', npu_matmul_add_fp16, create_dummy=True)
         pm.register_patch(
             'apex.normalization.fused_layer_norm.FusedLayerNormAffineFunction',
             FusedLayerNormAffineFunction,
