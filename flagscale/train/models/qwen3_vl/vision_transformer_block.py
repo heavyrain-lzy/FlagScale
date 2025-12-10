@@ -106,7 +106,6 @@ class VisionTransformerBlock(TransformerBlock):
                 for _ in range(len(self.config.deepstack_visual_indexes))
             ]
         )
-        self.deepstack_feature_lists = []  # Note: DeepStack
 
     def _checkpointed_forward(
         self,
