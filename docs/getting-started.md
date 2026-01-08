@@ -68,7 +68,7 @@ We recommend using the latest release of [NGC's PyTorch container](https://catal
     cd verl-FL
     pip install --no-deps -e .
     ```
-    See more details in [verl-FL](https://github.com/flagos-ai/verl-FL.git)
+    See more details in [verl-FL](https://github.com/flagos-ai/verl-FL.git) to get full installation instructions.
 
 
 ## Run a Task
@@ -222,52 +222,6 @@ Require vLLM-FL env
     python run.py --config-path ./examples/qwen3/conf --config-name serve action=stop
     ```
 
-
-### Serving DeepSeek-R1 <a name="deepseek-r1-serving"></a>
-
-We support serving the DeepSeek-R1 model and have implemented the `flagscale serve`
-command for one-click deployment. By configuring just two YAML files,
-you can easily serve the model using the `flagscale serve` command.
-
-1. **Configure the YAML files:**
-
-   ```none
-   FlagScale/
-    ├─ examples/
-    │   └─ deepseek_r1/
-    │        └─ conf/
-    │            └─ serve.yaml
-    |            └─ hostfile.txt # Set hostfile (optional)
-    │            └─ serve/
-    │               └─ 671b.yaml # Set model parameters and server port
-   ```
-
-   > [!Note]
-   > When a task spans more than one nodes, a [hostfile.txt](./examples/deepseek/conf/hostfile.txt)
-   > is required. Its path should be set in the `serve.yaml` configuration file.
-
-2. Install FlagScale CLI:
-
-   ```shell
-   cd FlagScale
-   pip install . --verbose --no-build-isolation
-   ```
-
-3. Start serving:
-
-   ```shell
-   flagscale serve deepseek_r1
-   ```
-
-Note that the `flagscale` command line supports customzation of service parameters:
-
-```shell
-flagscale serve <MODEL_NAME> <MODEL_CONFIG_YAML>
-```
-
-The configuration files allow you to specify the necessary parameters and settings
-for your deployment, ensuring a smooth and efficient serving process.
-
 ### RL
 Require verl-FL env
 
@@ -328,3 +282,49 @@ You can check the output in your experiment directory.
     ```sh
     ray stop
     ```
+
+### Serving DeepSeek-R1 <a name="deepseek-r1-serving"></a>
+
+We support serving the DeepSeek-R1 model and have implemented the `flagscale serve`
+command for one-click deployment. By configuring just two YAML files,
+you can easily serve the model using the `flagscale serve` command.
+
+1. **Configure the YAML files:**
+
+   ```none
+   FlagScale/
+    ├─ examples/
+    │   └─ deepseek_r1/
+    │        └─ conf/
+    │            └─ serve.yaml
+    |            └─ hostfile.txt # Set hostfile (optional)
+    │            └─ serve/
+    │               └─ 671b.yaml # Set model parameters and server port
+   ```
+
+   > [!Note]
+   > When a task spans more than one nodes, a [hostfile.txt](./examples/deepseek/conf/hostfile.txt)
+   > is required. Its path should be set in the `serve.yaml` configuration file.
+
+2. Install FlagScale CLI:
+
+   ```shell
+   cd FlagScale
+   pip install . --verbose --no-build-isolation
+   ```
+
+3. Start serving:
+
+   ```shell
+   flagscale serve deepseek_r1
+   ```
+
+Note that the `flagscale` command line supports customzation of service parameters:
+
+```shell
+flagscale serve <MODEL_NAME> <MODEL_CONFIG_YAML>
+```
+
+The configuration files allow you to specify the necessary parameters and settings
+for your deployment, ensuring a smooth and efficient serving process.
+
