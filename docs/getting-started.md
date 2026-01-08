@@ -322,7 +322,7 @@ You can check the output in your experiment directory.
 
 5. Stop rl:
     ```sh
-    python run.py --config-path ./examples/qwen3/conf --config-name rl action=run
+    python run.py --config-path ./examples/qwen3/conf --config-name rl action=stop
     ```
     or force to stop ray cluster.
     ```sh
