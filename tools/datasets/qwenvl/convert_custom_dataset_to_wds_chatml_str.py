@@ -2,26 +2,23 @@
 # We must store the path of vision data, not the real data.
 
 import json
-import math
 import os
 import pickle
-
 from argparse import ArgumentParser
+from collections.abc import Sequence
 from itertools import zip_longest
-from typing import Generator, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import webdataset as wds
 import yaml
-
 from tqdm import tqdm
-from webdataset.writer import add_handlers, default_handlers, imageencoder
+from webdataset.writer import add_handlers, default_handlers
 
 from megatron.energon.epathlib import EPath
 from megatron.energon.flavors import BaseWebdatasetFactory
 
 
-def _generalized_bit_reversal(length_or_indices: Union[int, Sequence[int]]) -> Sequence[int]:
+def _generalized_bit_reversal(length_or_indices: int | Sequence[int]) -> Sequence[int]:
     """This function creates a permutation of given length.
     The sequence is created by a recursive divide and interleave algorithm
     to ensure a balanced distribution across ranks.
@@ -93,7 +90,7 @@ def split_samples_to_workers(
     # Some of these steps could be collapsed into one, but we keep them separate for clarity:
     # 1. Compute the number of samples per global worker (rotated by rotation_offset,
     #    typically given by previous datasets).
-    # 2. Permute the nuber of samples per global worker by a generalized bit reversal sequence
+    # 2. Permute the number of samples per global worker by a generalized bit reversal sequence
     # 3. Given the sample counts, compute the start and end indices for each global worker
     # 4. Extract the local worker sample assignments for the current rank.
     # 5. Split the shards based on the start and end indices.
@@ -159,7 +156,7 @@ def convert(
     data_len = len(data)
     print(f"Loaded {data_len} entries")
 
-    print(f"The fisrt entry in the dataset is {data[0]}")
+    print(f"The first entry in the dataset is {data[0]}")
     if image_key not in data[0]:
         print(f"Warning: {image_key} not found in the first entry")
     if video_key not in data[0]:
@@ -168,19 +165,19 @@ def convert(
     # custom webdataset ShardWriter Encoder
     # "jpgs": the key when saving the image, see line 93
     # "videos": the key when saving the video, see line 92
-    add_handlers(default_handlers, 'jpgs', lambda data: pickle.dumps(data))
-    add_handlers(default_handlers, 'videos', lambda data: pickle.dumps(data))
+    add_handlers(default_handlers, "jpgs", lambda data: pickle.dumps(data))
+    add_handlers(default_handlers, "videos", lambda data: pickle.dumps(data))
 
     def write_sample(entry, vision_dir, has_idx=None, idx=0):
         # NOTE: read a dataset in sharegpt format
-        image_datas: List[str] = []
+        images_data: list[str] = []
         # NOTE: we support both list and str for image path.
         image_paths = entry.get(image_key, [])
         if isinstance(image_paths, str):
             image_paths = [image_paths]
-        image_datas = image_paths
+        images_data = image_paths
 
-        video_datas: List[List[str]] = []
+        videoes_data: list[list[str]] = []
         second_per_grid_ts = []
 
         for video in entry.pop(video_key, []):
@@ -194,15 +191,15 @@ def convert(
             else:
                 fps = 2.0
 
-            frames: List[str] = []
+            frames: list[str] = []
             for frame in sort_function(os.listdir(frame_folder)):
                 # get relative path（remove "vision_dir"）
                 relative_path = os.path.relpath(os.path.join(frame_folder, frame), start=vision_dir)
-                frames.appen(relative_path)
+                frames.append(relative_path)
 
             if len(frames) % 2 == 1:
                 frames = frames[:-1]
-            video_datas.append(frames)
+            videoes_data.append(frames)
             second_per_grid_ts.append(1 / fps)
 
         if has_idx is None:
@@ -211,8 +208,8 @@ def convert(
 
         sample = {
             "__key__": entry.pop("id", str(idx)),
-            "jpgs": image_datas,
-            "videos": video_datas,
+            "jpgs": images_data,
+            "videos": videoes_data,
             "json": json.dumps(
                 {"conversations": entry["conversations"], "second_per_grid_ts": second_per_grid_ts}
             ).encode("utf-8"),
@@ -250,14 +247,14 @@ def convert(
                 entry = data[idx]
                 write_sample(entry, vision_dir, has_idx=has_idx, idx=idx)
                 deal_index_list.append(idx)
-            assert (
-                current_count == real_num_per_rank[rank]
-            ), f"current count [{current_count}] of data is not equal to real_num_per_rank: {real_num_per_rank[rank]}"
+            assert current_count == real_num_per_rank[rank], (
+                f"current count [{current_count}] of data is not equal to real_num_per_rank: {real_num_per_rank[rank]}"
+            )
         # Add the assertion to check all indices are covered
-        assert (
-            sorted(deal_index_list) == origin_index_list
-        ), f"deal_index_list: {sorted(deal_index_list)} is not equal to origin_index_list: {origin_index_list}"
-    print(f"Dataset successfully converted to wds")
+        assert sorted(deal_index_list) == origin_index_list, (
+            f"deal_index_list: {sorted(deal_index_list)} is not equal to origin_index_list: {origin_index_list}"
+        )
+    print("Dataset successfully converted to wds")
     return output
 
 
@@ -324,10 +321,10 @@ if __name__ == "__main__":
         dp_size=args.dp_size,
         drop_last=args.drop_last,
     )
-    print(f"Generating Configurations")
+    print("Generating Configurations")
     # NOTE: split_ratio: train/val/test
     split = [args.train_split, args.val_split, args.test_split]
     generate_configs(
         EPath(output_dir), split, shuffle_tars=args.shuffle_tars, num_workers=args.num_workers
     )
-    print(f"Configurations Generated")
+    print("Configurations Generated")

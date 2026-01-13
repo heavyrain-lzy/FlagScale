@@ -1,5 +1,4 @@
 from abc import ABC
-from enum import Enum
 
 from omegaconf import DictConfig
 
@@ -29,7 +28,7 @@ class Runner(ABC):
         backend_attr = getattr(self.config.experiment.task, "backend", None)
         if self.task_type == "serve":
             if self.launcher_type == "cloud":
-                backend_attr = "vllm"  # do not surpport other backend
+                backend_attr = "vllm"  # do not support other backend
             elif backend_attr is None and not self.config.experiment.task.get("entrypoint", None):
                 backend_attr = self.config.serve[0]["engine"]
 
